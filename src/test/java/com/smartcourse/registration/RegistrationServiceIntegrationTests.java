@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -162,6 +164,27 @@ class RegistrationServiceIntegrationTests {
 
         assertEquals(0L, offeringSummary().enrolledCount());
         assertEquals(0L, offeringSummary().waitlistedCount());
+    }
+
+    @Test
+    void httpEndpointsExposeSummaryAndEnrollmentLifecycle() throws Exception {
+        mockMvc.perform(get("/api/v1/offerings/{offeringId}", OFFERING_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.offeringId").value(OFFERING_ID))
+                .andExpect(jsonPath("$.capacity").value(2));
+
+        mockMvc.perform(post("/api/v1/offerings/{offeringId}/enrollments", OFFERING_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"learnerId\":\"learner-1\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("ENROLLED"));
+
+        mockMvc.perform(delete(
+                        "/api/v1/offerings/{offeringId}/enrollments/{learnerId}",
+                        OFFERING_ID,
+                        "learner-1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("DROPPED"));
     }
 
     @Test

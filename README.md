@@ -14,7 +14,9 @@ The implementation includes:
 - invalid identifier, malformed JSON, missing offering, prerequisite failure,
   and repeated-drop handling;
 - transactional JPA mutations and pessimistic locking;
-- focused service integration and concurrent boundary tests;
+- controller and service unit tests, DAO adapter tests, H2/JPA and HTTP
+  integration tests, and concurrent boundary tests;
+- a JaCoCo line-coverage gate of 90% for `mvnw.cmd verify`;
 - versioned REST APIs, request tracing, and RFC 9457 problem responses.
 
 Not included: frontend, catalog, identity integration, payments, multi-term
@@ -125,6 +127,14 @@ From the repository root:
 
 A successful run finishes with `BUILD SUCCESS`.
 
+To also generate the JaCoCo report and enforce the 90% line-coverage gate:
+
+```powershell
+.\mvnw.cmd verify
+```
+
+The HTML report is written to `target\site\jacoco\index.html`.
+
 ### Step 5: Start the application
 
 ```powershell
@@ -173,10 +183,10 @@ Request and response examples are in [POSTMAN.md](POSTMAN.md).
 
 ## 7. Verification commands
 
-Run the complete suite:
+Run the complete suite with coverage enforcement:
 
 ```powershell
-.\mvnw.cmd clean test
+.\mvnw.cmd clean verify
 ```
 
 Build the executable artifact:

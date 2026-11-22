@@ -51,6 +51,9 @@ They contain no credentials or sensitive data.
 - "Remove the duplicate test field and stale package/import references."
 - "Correct the design documentation so it describes JPA/H2 accurately instead
   of process-memory state."
+- "Add focused controller, service, and persistence-layer unit tests, retain
+  the H2 integration and concurrency tests, and measure/enforce at least 90%
+  line coverage."
 
 | Prompt | AI response summary | Disposition | Verification |
 |---|---|---|---|
@@ -60,6 +63,7 @@ They contain no credentials or sensitive data.
 | "Reorganize into controller, service, dao/repository, dto, entity, config, exception, handler, and filter packages." | Proposed conventional package names and interface/implementation separation. | Accepted: kept `RegistrationService` as an interface and `RegistrationServiceImpl` as implementation, while rejecting unnecessary application/persistence abstractions. | Package/import scan; application and test compilation. |
 | "Use Java collections to seed demo offering, capacity, and eligible learners; remove PowerShell-only setup." | Proposed Java-backed property defaults and startup offering initialization. | Accepted; removed environment-variable setup for learner eligibility and retained only optional offering/capacity overrides. | Verified default collection in `RegistrationProperties`, startup initializer, and README run steps. |
 | "Create ordered Postman scenarios and update README for panel members." | Proposed a restartable 18-step request sequence covering positive, negative, FIFO, repeated-drop, and locking evidence. | Accepted and edited to match the final `/api/v1/offerings` routes and Java-backed seed data. | Reviewed each scenario against controller mappings, service outcomes, and problem-detail codes. |
+| "Add per-layer unit and integration tests and enforce 90% line coverage." | Added isolated controller/service/DAO adapter tests, request-filter and exception-advisor tests, and a JaCoCo bundle line gate. | Accepted with corrections after independently reviewing failures; repository behavior is verified through H2-backed service/API integration tests because Spring Data repository interfaces contain no handwritten implementation. | `.\mvnw.cmd verify` passed: 48 tests, 0 failures/errors; JaCoCo measured 97.8% line coverage (311/318), exceeding the 90% gate. |
 
 ## Independent review performed
 
@@ -80,10 +84,16 @@ The implementation was reviewed independently for:
 Run after implementation:
 
 ```powershell
-.\mvnw.cmd test
+.\mvnw.cmd verify
 .\mvnw.cmd spring-boot:run
 ```
 
-The test suite includes available capacity, full capacity, duplicate requests,
-FIFO eligible promotion, prerequisite failure, repeated/invalid drops,
-concurrent boundary enrollment, and HTTP problem-details validation.
+Verification result: 48 tests passed with no failures or errors. JaCoCo
+reported 97.8% bundle line coverage (311 of 318 lines); the Maven verify phase
+enforces a 90% minimum. Coverage is a useful measurement, not proof by itself
+that every behavior is correct.
+
+The tests cover available capacity, full capacity, duplicate requests, FIFO
+eligible promotion, prerequisite failure, repeated/invalid drops, concurrent
+boundary enrollment, controller mappings, persistence adapter behavior,
+request tracing, and problem-details validation.
