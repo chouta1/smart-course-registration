@@ -16,7 +16,7 @@ The implementation includes:
 - transactional JPA mutations and pessimistic locking;
 - controller and service unit tests, DAO adapter tests, H2/JPA and HTTP
   integration tests, and concurrent boundary tests;
-- a JaCoCo line-coverage gate of 90% for `mvnw.cmd verify`;
+- a JaCoCo line-coverage gate of 90% for `mvn verify`;
 - versioned REST APIs, request tracing, and RFC 9457 problem responses.
 
 Not included: frontend, catalog, identity integration, payments, multi-term
@@ -27,8 +27,7 @@ registration, deployment automation, Kafka, or an external database.
 - The offering is `course-101`.
 - Default capacity is `2`.
 - Learners `learner-1` through `learner-5` are eligible by default.
-- The list is Java-backed demo configuration. No PowerShell data setup is
-  required.
+- The list is Java-backed demo configuration. No manual data setup is required.
 - An initially ineligible learner is neither enrolled nor waitlisted.
 - If an ineligible learner reaches the front during promotion, the service
   skips that learner, promotes the earliest eligible later learner, and leaves
@@ -70,75 +69,51 @@ src/main/java/com/smartcourse/registration
   domain/          Immutable results and shared domain types
 ```
 
-## 5. Panel-member setup instructions
+## 5. Panel-member setup instructions (VS Code)
 
-### Step 1: Install Java
+### Step 1: Check Java and Maven
 
-Install a JDK 21 distribution. Eclipse Temurin 21 is suitable on Windows.
-
-Verify:
-
-```powershell
-java -version
-javac -version
-```
-
-Both commands must report Java 21.
-
-### Step 2: Open the project
-
-Open this repository folder in Visual Studio Code or another Java IDE:
+The panel member's system should have Java 21 and Maven installed and available
+in the terminal `PATH`. In the VS Code integrated terminal, confirm both are
+available:
 
 ```text
-C:\Users\DELL\Downloads\registration
+java -version
+mvn -version
 ```
+
+Java must report version 21.
+
+### Step 2: Open the project and integrated terminal
+
+In VS Code, select **File > Open Folder...** and open the cloned repository.
 
 Install/enable the VS Code Java language support and debugger extensions only
 if the IDE prompts for them.
 
-### Step 3: Configure Java for the current terminal
+Open **Terminal > New Terminal**. Run the following commands from the
+repository root (the folder containing `pom.xml`).
 
-Find Java 21:
+### Step 3: Run tests
 
-```powershell
-Get-ChildItem "C:\Program Files\Eclipse Adoptium" -Directory
-```
-
-Set it for the current PowerShell session using the directory reported by the
-previous command:
-
-```powershell
-$jdk = "C:\Program Files\Eclipse Adoptium\jdk-21.0.13.10002-hotspot"
-$env:JAVA_HOME = $jdk
-$env:Path = "$jdk\bin;$env:Path"
-java -version
-```
-
-The exact JDK folder can differ. Use the folder that exists on the panel
-member's machine.
-
-### Step 4: Run tests
-
-From the repository root:
-
-```powershell
-.\mvnw.cmd test
+```text
+mvn test
 ```
 
 A successful run finishes with `BUILD SUCCESS`.
 
 To also generate the JaCoCo report and enforce the 90% line-coverage gate:
 
-```powershell
-.\mvnw.cmd verify
+```text
+mvn verify
 ```
 
 The HTML report is written to `target\site\jacoco\index.html`.
 
-### Step 5: Start the application
+### Step 4: Start the application
 
-```powershell
-.\mvnw.cmd spring-boot:run
+```text
+mvn spring-boot:run
 ```
 
 Wait until the log contains `Started RegistrationApplication`.
@@ -149,22 +124,10 @@ The service address is:
 http://localhost:8080
 ```
 
-No PowerShell environment variables or seed commands are needed. The offering
-and eligible learner collection are initialized from Java configuration.
+No environment variables or seed commands are needed. The offering and
+eligible learner collection are initialized from Java configuration.
 
-Optional environment overrides:
-
-```powershell
-$env:REGISTRATION_OFFERING_ID="course-101"
-$env:REGISTRATION_CAPACITY="2"
-.\mvnw.cmd spring-boot:run
-```
-
-The environment variable names do not enable eligible-learner overrides.
-Demo eligibility is controlled by the Java collection in
-`RegistrationProperties`.
-
-### Step 6: Run Postman scenarios
+### Step 5: Run Postman scenarios
 
 Open [POSTMAN.md](POSTMAN.md). Import is not required; create a collection
 manually or follow the numbered requests. Start with the summary and then
@@ -183,21 +146,24 @@ Request and response examples are in [POSTMAN.md](POSTMAN.md).
 
 ## 7. Verification commands
 
+Run these commands from the VS Code integrated terminal at the repository
+root. They use Maven installed on the panel member's system.
+
 Run the complete suite with coverage enforcement:
 
-```powershell
-.\mvnw.cmd clean verify
+```text
+mvn clean verify
 ```
 
 Build the executable artifact:
 
-```powershell
-.\mvnw.cmd clean package
+```text
+mvn clean package
 ```
 
 Run the packaged application:
 
-```powershell
+```text
 java -jar target\registration-0.0.1-SNAPSHOT.jar
 ```
 
